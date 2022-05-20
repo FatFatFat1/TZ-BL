@@ -5,6 +5,7 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     private Rigidbody2D rg2;
+    private Vector3 lastVel;
 
     private void Awake()
     {
@@ -14,7 +15,20 @@ public class Bullet : MonoBehaviour
 
     void Start()
     {
-        rg2.AddForce(transform.right * 100f);
+        rg2.AddForce(transform.right * 500f);
     }
 
+    private void Update()
+    {
+        lastVel = rg2.velocity;
+    }
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.collider.CompareTag("wall"))
+        {
+            var speed = lastVel.magnitude;
+            var direction = Vector3.Reflect(lastVel.normalized, collision.contacts[0].normal);
+            rg2.velocity = direction * Mathf.Max(speed,10f);
+        }
+    }
 }

@@ -29,7 +29,7 @@ public class CharacterAction : MonoBehaviour
     }
     public void Shot()
     {
-        Instantiate(Bullet, transform.position, transform.rotation);
+        Instantiate(Bullet, transform.position + transform.right, transform.rotation);
     }
 
 }
