@@ -6,6 +6,7 @@ public class Bullet : MonoBehaviour
 {
     private Rigidbody2D rg2;
     private Vector3 lastVel;
+    private GameObject _victim;
 
     private void Awake()
     {
@@ -30,5 +31,18 @@ public class Bullet : MonoBehaviour
             var direction = Vector3.Reflect(lastVel.normalized, collision.contacts[0].normal);
             rg2.velocity = direction * Mathf.Max(speed,10f);
         }
+        if (collision.collider.CompareTag("Team 1"))
+        {
+            _victim = collision.gameObject;
+            _victim.GetComponent<CharacterData>().scope += 1;
+            Destroy(gameObject);
+        }
+        if (collision.collider.CompareTag("Team 2"))
+        {
+            _victim = collision.gameObject;
+            _victim.GetComponent<CharacterData>().scope += 1;
+            Destroy(gameObject);
+        }
+
     }
 }
