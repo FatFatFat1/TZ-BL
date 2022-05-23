@@ -6,10 +6,10 @@ using UnityEngine.UI;
 public class CharacterData : MonoBehaviour
 {   
     public int scope = 0;
-    public GameObject MyscopeBoard;
+    [SerializeField] private GameObject scopeBoard;
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        MyscopeBoard.GetComponent<Text>().text = "Î×ÊÈ " + scope;
+        scopeBoard.GetComponent<Text>().text = "Î×ÊÈ " + scope;
     }
 }
