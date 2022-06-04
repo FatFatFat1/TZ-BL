@@ -8,6 +8,7 @@ TagManager:
   - wall
   - Team 2
   - Team 1
+  - arena
   layers:
   - Default
   - TransparentFX
@@ -18,8 +19,8 @@ TagManager:
   - player
   - wall
   - enemy
-  - 
-  - 
+  - enemyBullet
+  - arena
   - 
   - 
   - 

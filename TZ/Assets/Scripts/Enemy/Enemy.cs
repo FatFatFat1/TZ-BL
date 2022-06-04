@@ -5,9 +5,12 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     [SerializeField] private string state = "Idle";
+    public GameObject Bullet;
     public GameObject myEnemy;
+    public Camera Camera;
+    Vector2 playerPos;
     int mylayer = 1 << 8;
-    private void FixedUpdate()
+    private void Update()
     {
         ChooseState(myEnemy);
     }
@@ -17,45 +20,47 @@ public class Enemy : MonoBehaviour
 
         if (hit.collider && hit.collider.gameObject.CompareTag("Team 1"))
         {
-            //Debug.Log("Стреляю по прямой");
+            playerPos = new Vector2(player.GetComponent<Rigidbody2D>().transform.position.x + (player.GetComponent<SpriteRenderer>().bounds.size.x * (player.transform.position.x > GetComponent<Rigidbody2D>().transform.position.x ? 1 : -1)), GetComponent<Rigidbody2D>().transform.position.y);
+            Vector3 dir = player.transform.position - transform.position;
+            float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+
+            Instantiate(Bullet, transform.position, Quaternion.Euler(0, 0, angle));
+            Debug.Log("Стреляю по прямой");
             return;
         }
         else
         {
             //Debug.Log("Ищу рикошет");
             state = "Search ricochet";
+            Debug.Log("Ищу рикошет");
         }
 
 
         if (state == "Search ricochet")
         {
-            float angle = 0;
-            for (int i = 0; i < 360; i++)
+            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 300f, ~mylayer); //Узнаем про объекты вокруг
+            foreach (Collider2D i in hits)
             {
-                float x = Mathf.Sin(angle);
-                float y = Mathf.Cos(angle);
-                angle += 2 * Mathf.PI / 360;
-                Vector3 dir = new Vector3(transform.position.x + x, transform.position.y + y, 0);
-                var hitPos = hit.point;
-                hit = Physics2D.Raycast(hit.point, dir, Mathf.Infinity, ~mylayer);
-                if (hit.collider)
+                hit = Physics2D.Raycast(transform.position, i.transform.position, Mathf.Infinity, ~mylayer); //Шмаляем в объекты вокруг
+                Debug.DrawRay(transform.position, i.transform.position , Color.green);
+                if (hit.collider && hit.collider.gameObject.CompareTag("wall"))
                 {
-                    //Debug.DrawRay(hit.point, dir, Color.green);
-                    if (hit.collider.gameObject.CompareTag("wall"))
+                    var hitPos = hit.point;
+                    var dirForReflect = Vector2.Reflect(i.transform.position.normalized, hit.normal);
+                    hit = Physics2D.Raycast(hitPos, dirForReflect, Mathf.Infinity, ~mylayer);
+                    Debug.DrawRay(hitPos, dirForReflect, Color.red);
+                    if (hit.collider && hit.collider.gameObject.CompareTag("Team 1"))
                     {
-                        var dirForReflect = Vector3.Reflect(dir.normalized, hit.point);
-                        hitPos = hit.point.normalized;
-                        hit = Physics2D.Raycast(hitPos, dirForReflect, Mathf.Infinity, ~mylayer);
-                        //Debug.DrawRay(hitPos, hit.point, Color.red);
-                        if (hit.collider && hit.collider.gameObject.CompareTag("Team 1")) // Рикошет в теории попадает в игрока
-                        {
-                            state = "Fire ricochet";
-                            Debug.Log("Стреляю рикошетом");
-                            return;
-                        }
-
+                        Debug.DrawRay(hitPos, dirForReflect, Color.blue);
+                        state = "Fire ricochet";
+                        float WallAngle = Mathf.Atan2(hitPos.y, hitPos.x) * Mathf.Rad2Deg;
+                        Instantiate(Bullet, transform.position, Quaternion.Euler(0, 0, WallAngle));
+                        Debug.Log("Стреляю рикошетом");
+                        return;
                     }
+
                 }
+
             }
         }
         if (state != "Fire ricochet")

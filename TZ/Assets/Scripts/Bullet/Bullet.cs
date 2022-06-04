@@ -16,7 +16,7 @@ public class Bullet : MonoBehaviour
 
     void Start()
     {
-        rg2.AddForce(transform.right * 500f);
+        rg2.AddForce(transform.right.normalized * 500f);
     }
 
     private void Update()
@@ -41,6 +41,10 @@ public class Bullet : MonoBehaviour
         {
             _victim = collision.gameObject;
             _victim.GetComponent<CharacterData>().scope += 1;
+            Destroy(gameObject);
+        }
+        if (collision.collider.CompareTag("arena"))
+        {
             Destroy(gameObject);
         }
 
